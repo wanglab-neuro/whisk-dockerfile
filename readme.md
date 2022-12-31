@@ -4,13 +4,17 @@ https://github.com/aiporre/whisk
 https://github.com/aiporre/WhiskiWrap  
 
 # Example calls: 
+```
 docker run --rm -v $(pwd):/data -t whisk-ww \
 python -c "import WhiskiWrap; WhiskiWrap.pipeline_trace('test.mp4', 'output.hdf5', n_trace_processes=12)"
+```
 
-mkdir whiski_wrap_session
+`mkdir whiski_wrap_session`  
+```
 docker run --rm -v $(pwd):/data -t whisk-ww \
 python -c "import WhiskiWrap; from WhiskiWrap import FFmpegReader; \
 WhiskiWrap.interleaved_reading_and_tracing(FFmpegReader('/data/test.mp4'),'whiski_wrap_session', h5_filename='output.hdf5',n_trace_processes=20)"
+```
 
 ## test container
 `docker run -t whisk bash -c "trace"` should return:  
