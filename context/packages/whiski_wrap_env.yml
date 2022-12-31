@@ -1,0 +1,21 @@
+name: whiski_wrap
+channels:
+  - defaults
+  # - conda-forge
+dependencies:
+  - python=2.7
+  - pip
+  - numpy
+  - matplotlib
+  - pyqt
+  - pytables
+  - pandas
+  # - ipykernel
+  # - ipython
+  - scipy 
+  # - ffmpeg
+  - statsmodels
+  - conda-forge::ffmpeg-python
+  - pip:
+    - tifffile
+    - future
