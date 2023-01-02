@@ -38,7 +38,7 @@ E.g.: `docker run -v $(pwd):/data -t whisk bash -c "trace <file name>.tif <file 
 `docker run -v <data directory>:/data -t whisk bash -c "classify <file name>.measurements <file name>.measurements <face_x_y> x --px2mm <px/mm ratio> -n <num_whiskers> --limit2.0:50.0'"`
 
 ## Test the container
-`docker run -t whisk bash -c "trace"` should return:  
+`docker run --rm -t whisk trace` should return:  
 ```
 trace: Too few required arguments  
 Usage: trace <movie:string> <prefix:string>
