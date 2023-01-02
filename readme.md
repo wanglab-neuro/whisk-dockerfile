@@ -1,6 +1,6 @@
 ## The whisker tracking container 
-The purpose of this repository is to provide a container to run [Janelia's whisker tracking software](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1002591) and Chris Rodgers's wrapping functions (WhiskiWrap). The code base is cloned from Ariel Iporre's Python3-updated repositories: 
-https://github.com/aiporre/whisk
+The purpose of this repository is to provide a container to run [Janelia's whisker tracking software](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1002591) and Chris Rodgers's wrapping functions (WhiskiWrap). The code base is cloned from Ariel Iporre's Python3-updated repositories:  
+https://github.com/aiporre/whisk  
 https://github.com/aiporre/WhiskiWrap  
 
 ## Example calls using WhiskiWrap
