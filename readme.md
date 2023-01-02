@@ -1,12 +1,15 @@
-## The whisker tracking container 
+## Using the whisker tracking container 
 The purpose of this repository is to provide a container to run [Janelia's whisker tracking software](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1002591) and Chris Rodgers's wrapping functions (WhiskiWrap). The code base is cloned from Ariel Iporre's Python3-updated repositories:  
 https://github.com/aiporre/whisk  
 https://github.com/aiporre/WhiskiWrap  
 
+The image is publicly available [here](https://hub.docker.com/repository/docker/wanglabneuro/whisk), so you don't have to build the container yourself (unless you want to make changes to it). When using the image from the DockerHub, just change `-t whisk` to `-t wanglabneuro/whisk`.  
+e.g.: `docker run --rm -t wanglabneuro/whisk trace`.   
+
 ## Example calls using WhiskiWrap
 Basic tracing:   
 ```
-docker run --rm -v $(pwd):/data -t whisk-ww \
+docker run --rm -v $(pwd):/data -t whisk \
 python -c "import WhiskiWrap; WhiskiWrap.pipeline_trace('test.mp4', 'output.hdf5', n_trace_processes=12)"
 ```
 `$(pwd)` stands for the current directory, assuming this is the data directory. On Windows, use `%cd%` from the Command Prompt, or `${PWD}` from PowerShell.  
@@ -14,7 +17,7 @@ More efficient tracing function (`interleaved_reading_and_tracing`).
 ```
 mkdir whiski_wrap_session`  
   
-docker run --rm -v $(pwd):/data -t whisk-ww \
+docker run --rm -v $(pwd):/data -t whisk \
 python -c "import WhiskiWrap; from WhiskiWrap import FFmpegReader; \
 WhiskiWrap.interleaved_reading_and_tracing(FFmpegReader('/data/test.mp4'),'whiski_wrap_session', h5_filename='output.hdf5',n_trace_processes=20)"
 ```
