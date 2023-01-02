@@ -3,7 +3,7 @@ The purpose of this repository is to provide a container to run [Janelia's whisk
 https://github.com/aiporre/whisk  
 https://github.com/aiporre/WhiskiWrap  
 
-The image is publicly available [here](https://hub.docker.com/repository/docker/wanglabneuro/whisk), so you don't have to build the container yourself (unless you want to make changes to it). When using the image from the DockerHub, just change `-t whisk` to `-t wanglabneuro/whisk`.  
+The image is publicly available [here](https://hub.docker.com/r/wanglabneuro/whisk), so you don't have to build the container yourself (unless you want to make changes to it). When using the image from the DockerHub, just change `-t whisk` to `-t wanglabneuro/whisk`.  
 e.g.: `docker run --rm -t wanglabneuro/whisk trace`.   
 
 ## Example calls using WhiskiWrap
