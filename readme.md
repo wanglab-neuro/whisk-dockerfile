@@ -24,7 +24,32 @@ WhiskiWrap.interleaved_reading_and_tracing(FFmpegReader('/data/test.mp4'),'whisk
 
 The input video file can be any format that a default ffmpeg install can read. 
 
-List functions within the WiskiWrap module:  
+Below are a some functions of interest, with a short preview of what they do:  
+
+`trace_chunk`  
+	command = [whisk_path + 'trace', raw_video_filename, whiskers_file]  
+
+`measure_chunk`  
+	command = ['measure', '--face', face, raw_whiskers_filename, measurements_file]  
+
+`trace_and_measure_chunk`  
+	trace_command = [whisk_path + 'trace', raw_video_filename, whiskers_file]  
+	measure_command = ['measure', '--face', face, whiskers_file, measurements_file]  
+
+`pipeline_trace` (deprecated)    
+	trace_chunk, ...  
+	measure_chunk_star, ...  
+	append_whiskers_to_hdf5(...  
+
+`interleaved_read_trace_and_measure`  
+	trace_and_measure_chunk,...  
+	append_whiskers_to_hdf5(...  
+
+`interleaved_reading_and_tracing`  
+	trace_chunk,...  
+	append_whiskers_to_hdf5(...  
+
+To list functions within the WiskiWrap module:  
 `docker run --rm -t wanglabneuro/whisk python -c "import WhiskiWrap as ww; print(dir(ww))"`  
 
 ## Example calls using Janelia's whisker tracking code
