@@ -27,37 +27,37 @@ SHELL ["conda","run", "--no-capture-output", "-n","WhiskiWrap","/bin/bash","-c"]
 RUN conda install --quiet --yes ipykernel && \
     python -m ipykernel install --user --name whiski_wrap --display-name "WhiskiWrap" 
 
-RUN mkdir -p /root/dev
-WORKDIR /root/dev
+RUN mkdir -p /app
+WORKDIR /app
 # Clone Ariel Iporre's whisk fork.
 RUN git clone https://github.com/aiporre/whisk.git
 # Clone Ariel Iporre's WhiskiWrap version
 RUN git clone https://github.com/aiporre/WhiskiWrap.git
 	
-WORKDIR /root/dev/whisk/
+WORKDIR /app/whisk/
 
 # Run cmake configure & build process
 RUN mkdir build
-WORKDIR /root/dev/whisk/build
+WORKDIR /app/whisk/build
 RUN cmake ..
 RUN make
 
 # add whisk binaries to path
-ENV PATH="$PATH:/root/dev/whisk/build"
-ENV WHISKPATH="/root/dev/whisk/bin/"
+ENV PATH="$PATH:/app/whisk/build"
+ENV WHISKPATH="/app/whisk/bin/"
 
 # Add the whisk package 
-WORKDIR /root/dev/whisk/
-RUN cp /root/dev/whisk/build/libwhisk.so /root/dev/whisk/
+WORKDIR /app/whisk/
+RUN cp /app/whisk/build/libwhisk.so /app/whisk/
 RUN rm -r bin/* && \
     cp -r build/* bin/
 RUN pip install .
 
 RUN export PACKDIR=$(python -c "import site; print(''.join(site.getsitepackages()))"); \
-    cp /root/dev/whisk/build/libwhisk.so $PACKDIR/whisk/
+    cp /app/whisk/build/libwhisk.so $PACKDIR/whisk/
 
 # Add the WhiskiWrap package 
-WORKDIR /root/dev/WhiskiWrap/
+WORKDIR /app/WhiskiWrap/
 RUN pip install .
 
 # Set WhiskiWrap as default environment
@@ -69,12 +69,12 @@ RUN echo ". /opt/conda/etc/profile.d/conda.sh" >> /root/.profile && \
     echo "conda activate WhiskiWrap" >> ~/.bashrc
 
 # Add entrypoint script (not working)
-WORKDIR /root/dev/
+WORKDIR /app/
 COPY pipeline_call.py .
 
 # Error when calling script, but not when executing code through python (python -c "import WhiskiWrap; WhiskiWrap.pipeline_trace('test.mp4', 'output.hdf5', n_trace_processes=4)") or ipython  
 # Adding whisk module to Python path doesn't fix it
-# RUN	echo "/root/dev/whisk/share" >> /opt/conda/envs/WhiskiWrap/lib/python3.7/site-packages/WhiskiWrap.pth
+# RUN	echo "/app/whisk/share" >> /opt/conda/envs/WhiskiWrap/lib/python3.7/site-packages/WhiskiWrap.pth
 # export PYTHONPATH="${PYTHONPATH}:/opt/conda/envs/WhiskiWrap/lib/python3.7/site-packages/whisk"
 
 WORKDIR /data
@@ -82,7 +82,7 @@ WORKDIR /data
 # Alternative entrypoints
 # ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "WhiskiWrap", "python", "-c", "import WhiskiWrap; WhiskiWrap.pipeline_trace"]
 # ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "WhiskiWrap", "/bin/bash", "-c"]
-# ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "WhiskiWrap", "python", "/root/dev/pipeline_call.py"]
+# ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "WhiskiWrap", "python", "/app/pipeline_call.py"]
 
 # Example calls: 
 # docker run --rm -v $(pwd):/data -t whisk-ww \
