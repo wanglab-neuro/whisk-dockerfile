@@ -15,7 +15,7 @@ python -c "import WhiskiWrap; WhiskiWrap.pipeline_trace('test.mp4', 'output.hdf5
 `$(pwd)` stands for the current directory, assuming this is the data directory. On Windows, use `%cd%` from the Command Prompt, or `${PWD}` from PowerShell.  
 More efficient tracing function (`interleaved_reading_and_tracing`).  
 ```
-mkdir whiski_wrap_session`  
+mkdir whiski_wrap_session  
   
 docker run --rm -v $(pwd):/data -t whisk \
 python -c "import WhiskiWrap; from WhiskiWrap import FFmpegReader; \
@@ -23,6 +23,9 @@ WhiskiWrap.interleaved_reading_and_tracing(FFmpegReader('/data/test.mp4'),'whisk
 ```
 
 The input video file can be any format that a default ffmpeg install can read. 
+
+List functions within the WiskiWrap module:  
+`docker run --rm -t wanglabneuro/whisk python -c "import WhiskiWrap as ww; print(dir(ww))"`  
 
 ## Example calls using Janelia's whisker tracking code
 In theory, the code can read 8-bit grayscale StreamPix (Norpix Sequence Format: SEQ), TIFF, MPEG, MOV, and AVI formatted video.
