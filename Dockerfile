@@ -5,6 +5,9 @@ LABEL maintainer="Vincent Prevosto <prevosto@mit.edu>"
 # Copy installation files
 COPY packages packages
 
+# TODO
+# FROM whisk-base - copy archive, instead of link 
+
 # Package installs
 RUN apt update && \
     apt install -y --no-install-recommends \
@@ -33,14 +36,21 @@ WORKDIR /app
 RUN git clone https://github.com/aiporre/whisk.git
 # Clone Ariel Iporre's WhiskiWrap version
 RUN git clone https://github.com/aiporre/WhiskiWrap.git
-	
+
+# Install whisk, or build it
+# Binary package ELF 64-bit LSB, for GNU/Linux 2.6.15 available from
+# https://www.dropbox.com/s/1dr7g8x270xdrup/whisk-1.1.0d-64bit-Linux.tar.gz?dl=1	
+
 WORKDIR /app/whisk/
+# untar archive 
+# RUN tar -xzvf whisk-1.1.0d-64bit-Linux.tar.gz && \
+#       mv whisk-1.1.0d-Linux/* /app/whisk/ 
 
 # Run cmake configure & build process
-RUN mkdir build
-WORKDIR /app/whisk/build
-RUN cmake ..
-RUN make
+# RUN mkdir build
+# WORKDIR /app/whisk/build
+# RUN cmake ..
+# RUN make
 
 # add whisk binaries to path
 ENV PATH="$PATH:/app/whisk/build"
@@ -49,8 +59,8 @@ ENV WHISKPATH="/app/whisk/bin/"
 # Add the whisk package 
 WORKDIR /app/whisk/
 RUN cp /app/whisk/build/libwhisk.so /app/whisk/
-RUN rm -r bin/* && \
-    cp -r build/* bin/
+# RUN rm -r bin/* && \
+    # cp -r build/* bin/
 RUN pip install .
 
 RUN export PACKDIR=$(python -c "import site; print(''.join(site.getsitepackages()))"); \
