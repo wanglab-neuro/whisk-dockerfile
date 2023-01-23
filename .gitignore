@@ -1,2 +1,4 @@
 test/
 repo/
+context/packages/whisk-1.1.0d-32bit-Linux.tar.gz
+context/packages/whisk-1.1.0d-64bit-Linux.tar.gz
