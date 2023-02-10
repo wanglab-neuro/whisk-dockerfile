@@ -16,6 +16,9 @@ A new build is available in `whisk-base:0.0.4` (also `whisk-base:latest`). The c
 **whisk-ww**  
 Containers with `whisk` and `WhiskiWrap` are found on [wanglabneuro/whisk-ww](https://hub.docker.com/r/wanglabneuro/whisk-ww/tags).
 The code bases are Ariel Iporre's Python3-updated repositories for [whisk](https://github.com/aiporre/whisk) and [WhiskiWrap](https://github.com/aiporre/WhiskiWrap).  
+Image tags with `ob-<version number>` (e.g., `wanglabneuro/whisk-ww:ob-0.0.2`), use `whisk-base:legacy` as base, i.e., they contain the original Linux binaries.  
+Image tags with `nb-<version number>` (e.g., `wanglabneuro/whisk-ww:nb-0.0.1`) use `whisk-base:latest` as base, i.e., they contain the newly built Linux binaries.  
+In pratice, this doesn't have much impact. You can pull the latest with `docker pull wanglabneuro/whisk-ww`.  
 
 
 ## Example calls using WhiskiWrap
