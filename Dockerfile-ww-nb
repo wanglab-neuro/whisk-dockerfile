@@ -1,0 +1,104 @@
+FROM wanglabneuro/whisk-base:0.0.4
+
+LABEL maintainer="Vincent Prevosto <prevosto@mit.edu>"
+
+# Copy installation files
+COPY packages packages
+
+# Package installs
+RUN apt update && \
+    apt install -y --no-install-recommends \
+    wget && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# install miniconda
+ENV MINICONDA_VERSION 4.12.0
+ENV CONDA_DIR /home/miniconda3
+ENV LATEST_CONDA_SCRIPT "Miniconda3-py38_$MINICONDA_VERSION-Linux-x86_64.sh"
+
+RUN wget --quiet https://repo.anaconda.com/miniconda/$LATEST_CONDA_SCRIPT -O ~/miniconda.sh && \
+    bash ~/miniconda.sh -b -p $CONDA_DIR && \
+    rm ~/miniconda.sh
+ENV PATH=$CONDA_DIR/bin:$PATH
+RUN conda update conda && \
+    conda install conda-build
+
+# make conda activate command available from /bin/bash --login shells
+RUN echo ". $CONDA_DIR/etc/profile.d/conda.sh" >> /root/.profile 
+# make conda activate command available from /bin/bash --interactive shells
+RUN conda init bash
+    
+# Create environment for WhiskiWrap
+RUN conda env create -f packages/whiski_wrap_env.yml
+
+# Make RUN commands use the environment:
+SHELL ["conda","run", "--no-capture-output", "-n","WhiskiWrap","/bin/bash","-c"]
+RUN conda install --quiet --yes ipykernel && \
+    python -m ipykernel install --user --name whiski_wrap --display-name "WhiskiWrap" 
+
+# RUN mkdir -p /app
+WORKDIR /app
+RUN mv whisk whisk-bin
+# # Clone Ariel Iporre's whisk fork.
+RUN git clone https://github.com/aiporre/whisk.git
+# Clone Ariel Iporre's WhiskiWrap version
+RUN git clone https://github.com/aiporre/WhiskiWrap.git
+
+# add whisk binaries to path
+ENV PATH="$CONDA_DIR/bin:$CONDA_DIR/condabin:$CONDA_DIR/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ENV PATH="$PATH:/app/whisk/bin:/app/whisk/lib"
+
+## Add the whisk package 
+WORKDIR /app/whisk
+RUN rm -r bin/* && \
+    cp -r /app/whisk-bin/build/* bin/ && \
+    # cp -r /app/whisk-bin/lib/whisk/ ./lib/ && \
+    cp /app/whisk/bin/libwhisk.so /app/whisk/
+ENV WHISKPATH="/app/whisk/bin"
+RUN pip install .
+
+RUN export PACKDIR=$(python -c "import site; print(''.join(site.getsitepackages()))"); \
+    find /app/whisk/ -name *.so -exec cp {} $PACKDIR/whisk/ \; &&\
+    find /app/whisk/ -name *.so.* -exec cp {} $PACKDIR/whisk/ \;
+
+# Add the WhiskiWrap package 
+WORKDIR /app/WhiskiWrap/
+RUN pip install .
+
+# Set WhiskiWrap as default environment
+SHELL [ "/bin/bash", "--login",  "-c" ]
+# ENV PATH=/opt/conda/bin:$PATH
+ENV PATH $CONDA_DIR/envs/WhiskiWrap/bin:$PATH
+RUN echo ". $CONDA_DIR/etc/profile.d/conda.sh" >> /root/.profile && \
+    conda init bash && conda activate WhiskiWrap && \
+    echo "conda activate WhiskiWrap" >> ~/.bashrc
+
+# Add entrypoint script (not working)
+WORKDIR /app/
+COPY pipeline_call.py .
+
+# Error when calling script, but not when executing code through python (python -c "import WhiskiWrap; WhiskiWrap.pipeline_trace('test.mp4', 'output.hdf5', n_trace_processes=4)") or ipython  
+# Adding whisk module to Python path doesn't fix it
+# RUN	echo "/app/whisk/share" >> /opt/conda/envs/WhiskiWrap/lib/python3.7/site-packages/WhiskiWrap.pth
+# export PYTHONPATH="${PYTHONPATH}:/opt/conda/envs/WhiskiWrap/lib/python3.7/site-packages/whisk"
+
+WORKDIR /data
+
+# Alternative entrypoints
+# ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "WhiskiWrap", "python", "-c", "import WhiskiWrap; WhiskiWrap.pipeline_trace"]
+# ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "WhiskiWrap", "/bin/bash", "-c"]
+# ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "WhiskiWrap", "python", "/app/pipeline_call.py"]
+
+# Example calls: 
+# docker run --rm -v $(pwd):/data -t whisk-wrap \
+# python -c "import WhiskiWrap; WhiskiWrap.pipeline_trace('test.mp4', 'output.hdf5', n_trace_processes=12)"
+
+# mkdir whiski_wrap_session
+# docker run --rm -v $(pwd):/data -t whisk-wrap \
+# python -c "import WhiskiWrap; from WhiskiWrap import FFmpegReader; \
+# WhiskiWrap.interleaved_reading_and_tracing(FFmpegReader('/data/test.mp4'),'whiski_wrap_session', h5_filename='output.hdf5',n_trace_processes=20)"
+
+
+
+

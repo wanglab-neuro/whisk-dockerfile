@@ -1,0 +1,31 @@
+# Use FFmpeg image based on 20.04.5 LTS
+FROM jrottenberg/ffmpeg:5-ubuntu
+# jrottenberg/ffmpeg:2.8-ubuntu works but outdated Ubuntu 16.04.6 LTS
+
+LABEL maintainer="Vincent Prevosto <prevosto@mit.edu>"
+
+# Copy installation files
+COPY archive /archive
+
+# Package installs
+RUN apt update && \
+    apt install -y --no-install-recommends \
+    nano && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/*
+    
+# Install whisk
+# Original binary package ELF 64-bit LSB, for GNU/Linux 2.6.15 available from:
+# https://www.dropbox.com/s/1dr7g8x270xdrup/whisk-1.1.0d-64bit-Linux.tar.gz?dl=1	
+# Alternatively, get it from this image: docker pull wanglabneuro/whisk-base:legacy
+
+WORKDIR /archive
+RUN tar -xzvf whisk-1.1.0d-64bit-Linux.tar.gz
+RUN mkdir -p /app/whisk && \
+    cp -rf whisk-1.1.0d-Linux/* /app/whisk/ 
+
+ENV PATH="$PATH:/app/whisk/bin/whisk:/app/whisk/lib/whisk"
+
+WORKDIR /data
+
+ENTRYPOINT []
