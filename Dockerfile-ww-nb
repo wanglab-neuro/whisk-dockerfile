@@ -1,4 +1,4 @@
-FROM wanglabneuro/whisk-base:0.0.4
+FROM wanglabneuro/whisk-base:0.1.0
 
 LABEL maintainer="Vincent Prevosto <prevosto@mit.edu>"
 
@@ -40,10 +40,12 @@ RUN conda install --quiet --yes ipykernel && \
 # RUN mkdir -p /app
 WORKDIR /app
 RUN mv whisk whisk-bin
+# # Clone the whisk repo
+# RUN git clone https://github.com/vncntprvst/whisk.git
 # # Clone Ariel Iporre's whisk fork.
 RUN git clone https://github.com/aiporre/whisk.git
-# Clone Ariel Iporre's WhiskiWrap version
-RUN git clone https://github.com/aiporre/WhiskiWrap.git
+# Clone the  WhiskiWrap repo
+RUN git clone https://github.com/vncntprvst/WhiskiWrap.git
 
 # add whisk binaries to path
 ENV PATH="$CONDA_DIR/bin:$CONDA_DIR/condabin:$CONDA_DIR/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
