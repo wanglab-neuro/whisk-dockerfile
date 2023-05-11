@@ -9,6 +9,7 @@ dependencies:
   - pandas
   - pytables
   - statsmodels
+  - opencv
   - conda-forge::ffmpeg-python
   - pip:
     - tifffile

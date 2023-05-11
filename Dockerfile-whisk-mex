@@ -1,0 +1,46 @@
+# Use FFmpeg image 
+FROM jrottenberg/ffmpeg:5.1-nvidia2004
+# ffmpeg configured with '--enable-nvenc' flag 
+
+LABEL maintainer="Vincent Prevosto <prevosto@mit.edu>"
+
+ENV DEBIAN_FRONTEND noninteractive
+
+COPY --from=wanglabneuro/matlab_om:2021b /usr/local/MATLAB/R2021b /usr/local/MATLAB/R2021b
+ENV PATH="/usr/local/MATLAB/R2021b/bin:${PATH}"
+
+# Package installs
+RUN apt update && \
+    apt install -y --no-install-recommends \
+    build-essential \
+    cmake \
+    zlib1g-dev \
+    libbz2-dev \
+    libvorbis-dev \
+    libxcb-xinerama0 \
+    pkg-config \
+    bison \
+    gawk \
+    git-core \
+    nano && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/*
+    
+RUN mkdir -p /app
+WORKDIR /app
+RUN git clone https://github.com/vncntprvst/whisk.git
+
+# Install whisk
+# Run cmake configure & build process
+WORKDIR /app/whisk
+RUN mkdir build
+WORKDIR /app/whisk/build
+RUN cmake ..
+RUN make
+
+# add whisk binaries to path
+ENV PATH="$PATH:/app/whisk/build"
+
+WORKDIR /data
+
+ENTRYPOINT []

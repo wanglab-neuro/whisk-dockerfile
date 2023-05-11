@@ -1,4 +1,4 @@
-FROM wanglabneuro/whisk-base:0.1.0
+FROM wanglabneuro/whisk-base:0.2.0
 
 LABEL maintainer="Vincent Prevosto <prevosto@mit.edu>"
 
@@ -8,7 +8,10 @@ COPY packages packages
 # Package installs
 RUN apt update && \
     apt install -y --no-install-recommends \
-    wget && \
+    wget \
+    libsm6 \
+    libgl1-mesa-glx \
+    libxext6 && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -36,14 +39,16 @@ RUN conda env create -f packages/whiski_wrap_env.yml
 SHELL ["conda","run", "--no-capture-output", "-n","WhiskiWrap","/bin/bash","-c"]
 RUN conda install --quiet --yes ipykernel && \
     python -m ipykernel install --user --name whiski_wrap --display-name "WhiskiWrap" 
+# For debugging purposes, Qt creates a conflict
+RUN conda remove pyqt qt-main qt-webengine qtwebkit --force
 
 # RUN mkdir -p /app
 WORKDIR /app
-RUN mv whisk whisk-bin
+# RUN mv whisk whisk-bin
 # # Clone the whisk repo
 # RUN git clone https://github.com/vncntprvst/whisk.git
 # # Clone Ariel Iporre's whisk fork.
-RUN git clone https://github.com/aiporre/whisk.git
+# RUN git clone https://github.com/aiporre/whisk.git
 # Clone the  WhiskiWrap repo
 RUN git clone https://github.com/vncntprvst/WhiskiWrap.git
 
@@ -53,20 +58,27 @@ ENV PATH="$PATH:/app/whisk/bin:/app/whisk/lib"
 
 ## Add the whisk package 
 WORKDIR /app/whisk
-RUN rm -r bin/* && \
-    cp -r /app/whisk-bin/build/* bin/ && \
-    # cp -r /app/whisk-bin/lib/whisk/ ./lib/ && \
-    cp /app/whisk/bin/libwhisk.so /app/whisk/
+# RUN rm -r bin/* && \
+#     cp -r /app/whisk-bin/build/* bin/ && \
+#     # cp -r /app/whisk-bin/lib/whisk/ ./lib/ && \
+#     cp /app/whisk/bin/libwhisk.so /app/whisk/
+#     cp /app/whisk/bin/libwhisk.so /app/WhiskiWrap/WhiskiWrap/
+RUN mv build bin
+RUN cp /app/whisk/bin/libwhisk.so /app/WhiskiWrap/WhiskiWrap/ 
 ENV WHISKPATH="/app/whisk/bin"
-RUN pip install .
+# RUN pip install .
 
-RUN export PACKDIR=$(python -c "import site; print(''.join(site.getsitepackages()))"); \
-    find /app/whisk/ -name *.so -exec cp {} $PACKDIR/whisk/ \; &&\
-    find /app/whisk/ -name *.so.* -exec cp {} $PACKDIR/whisk/ \;
+# RUN export PACKDIR=$(python -c "import site; print(''.join(site.getsitepackages()))"); \
+#     find /app/whisk/ -name *.so -exec cp {} $PACKDIR/whisk/ \; &&\
+#     find /app/whisk/ -name *.so.* -exec cp {} $PACKDIR/whisk/ \;
 
 # Add the WhiskiWrap package 
 WORKDIR /app/WhiskiWrap/
 RUN pip install .
+
+RUN export PACKDIR=$(python -c "import site; print(''.join(site.getsitepackages()))"); \
+    find /app/WhiskiWrap/ -name *.so -exec cp {} $PACKDIR/WhiskiWrap/ \; &&\
+    find /app/WhiskiWrap/ -name *.so.* -exec cp {} $PACKDIR/WhiskiWrap/ \;
 
 # Set WhiskiWrap as default environment
 SHELL [ "/bin/bash", "--login",  "-c" ]
