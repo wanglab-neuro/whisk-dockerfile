@@ -7,6 +7,7 @@ COPY packages packages
 
 # Package installs
 RUN apt update && \
+    apt upgrade -y && \
     apt install -y --no-install-recommends \
     wget \
     libsm6 \
@@ -39,38 +40,21 @@ RUN conda env create -f packages/whiski_wrap_env.yml
 SHELL ["conda","run", "--no-capture-output", "-n","WhiskiWrap","/bin/bash","-c"]
 RUN conda install --quiet --yes ipykernel && \
     python -m ipykernel install --user --name whiski_wrap --display-name "WhiskiWrap" 
-# For debugging purposes, Qt creates a conflict
-RUN conda remove pyqt qt-main qt-webengine qtwebkit --force
 
-# RUN mkdir -p /app
 WORKDIR /app
-# RUN mv whisk whisk-bin
-# # Clone the whisk repo
-# RUN git clone https://github.com/vncntprvst/whisk.git
-# # Clone Ariel Iporre's whisk fork.
-# RUN git clone https://github.com/aiporre/whisk.git
+
 # Clone the  WhiskiWrap repo
 RUN git clone https://github.com/vncntprvst/WhiskiWrap.git
+
+## Add the whisk package 
+WORKDIR /app/whisk
+RUN mv build bin
+RUN cp /app/whisk/bin/libwhisk.so /app/WhiskiWrap/WhiskiWrap/ 
+ENV WHISKPATH="/app/whisk/bin"
 
 # add whisk binaries to path
 ENV PATH="$CONDA_DIR/bin:$CONDA_DIR/condabin:$CONDA_DIR/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 ENV PATH="$PATH:/app/whisk/bin:/app/whisk/lib"
-
-## Add the whisk package 
-WORKDIR /app/whisk
-# RUN rm -r bin/* && \
-#     cp -r /app/whisk-bin/build/* bin/ && \
-#     # cp -r /app/whisk-bin/lib/whisk/ ./lib/ && \
-#     cp /app/whisk/bin/libwhisk.so /app/whisk/
-#     cp /app/whisk/bin/libwhisk.so /app/WhiskiWrap/WhiskiWrap/
-RUN mv build bin
-RUN cp /app/whisk/bin/libwhisk.so /app/WhiskiWrap/WhiskiWrap/ 
-ENV WHISKPATH="/app/whisk/bin"
-# RUN pip install .
-
-# RUN export PACKDIR=$(python -c "import site; print(''.join(site.getsitepackages()))"); \
-#     find /app/whisk/ -name *.so -exec cp {} $PACKDIR/whisk/ \; &&\
-#     find /app/whisk/ -name *.so.* -exec cp {} $PACKDIR/whisk/ \;
 
 # Add the WhiskiWrap package 
 WORKDIR /app/WhiskiWrap/
@@ -79,6 +63,15 @@ RUN pip install .
 RUN export PACKDIR=$(python -c "import site; print(''.join(site.getsitepackages()))"); \
     find /app/WhiskiWrap/ -name *.so -exec cp {} $PACKDIR/WhiskiWrap/ \; &&\
     find /app/WhiskiWrap/ -name *.so.* -exec cp {} $PACKDIR/WhiskiWrap/ \;
+
+# For debugging purposes, Qt creates a conflict
+# RUN conda remove pyqt qt-main qt-webengine qtwebkit --force
+# But that may lead to cv2 import error - ImportError: libQt5Widgets.so.5: cannot open shared object file: No such file or directory
+# RUN conda remove opencv --force
+# RUN apt update && apt upgrade
+# RUN dpkg --configure -a
+# RUN apt install -y --no-install-recommends libqt5widgets5 libqt5gui5 libqt5svg5 qt5-gtk-platformtheme
+# RUN conda install opencv
 
 # Set WhiskiWrap as default environment
 SHELL [ "/bin/bash", "--login",  "-c" ]
