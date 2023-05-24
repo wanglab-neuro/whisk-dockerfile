@@ -16,7 +16,26 @@ RUN apt update && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
 
-# install miniconda
+# Fix error that occurs when using vscode debugger:
+# qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "" even though it was found.
+# This application failed to start because no Qt platform plugin could be initialized. Reinstalling the application may fix this problem.
+# Available platform plugins are: eglfs, minimal, minimalegl, offscreen, vnc, webgl, xcb.
+RUN apt update && \
+    apt upgrade -y && \
+    apt install -y --no-install-recommends \
+    libxcb-icccm4 \
+    libxcb-image0 \
+    libxcb-keysyms1 \
+    libxcb-render-util0 \
+    libxcb-xinerama0-dev \
+    libxcb-randr0-dev \
+    libxcb-xtest0-dev \
+    libxcb-shape0-dev \
+    libxcb-xkb-dev && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install miniconda
 ENV MINICONDA_VERSION 4.12.0
 ENV CONDA_DIR /home/miniconda3
 ENV LATEST_CONDA_SCRIPT "Miniconda3-py38_$MINICONDA_VERSION-Linux-x86_64.sh"
@@ -28,9 +47,9 @@ ENV PATH=$CONDA_DIR/bin:$PATH
 RUN conda update conda && \
     conda install conda-build
 
-# make conda activate command available from /bin/bash --login shells
+# Make conda activate command available from /bin/bash --login shells
 RUN echo ". $CONDA_DIR/etc/profile.d/conda.sh" >> /root/.profile 
-# make conda activate command available from /bin/bash --interactive shells
+# Make conda activate command available from /bin/bash --interactive shells
 RUN conda init bash
     
 # Create environment for WhiskiWrap
@@ -41,9 +60,8 @@ SHELL ["conda","run", "--no-capture-output", "-n","WhiskiWrap","/bin/bash","-c"]
 RUN conda install --quiet --yes ipykernel && \
     python -m ipykernel install --user --name whiski_wrap --display-name "WhiskiWrap" 
 
-WORKDIR /app
-
 # Clone the  WhiskiWrap repo
+WORKDIR /app
 RUN git clone https://github.com/vncntprvst/WhiskiWrap.git
 
 ## Add the whisk package 
@@ -64,14 +82,21 @@ RUN export PACKDIR=$(python -c "import site; print(''.join(site.getsitepackages(
     find /app/WhiskiWrap/ -name *.so -exec cp {} $PACKDIR/WhiskiWrap/ \; &&\
     find /app/WhiskiWrap/ -name *.so.* -exec cp {} $PACKDIR/WhiskiWrap/ \;
 
-# For debugging purposes, Qt creates a conflict
+# For debugging purposes - Qt creates a conflict
+# But removing Qt leads to cv2 import error - ImportError: libQt5Widgets.so.5: cannot open shared object file: No such file or directory
 # RUN conda remove pyqt qt-main qt-webengine qtwebkit --force
-# But that may lead to cv2 import error - ImportError: libQt5Widgets.so.5: cannot open shared object file: No such file or directory
 # RUN conda remove opencv --force
+# SHELL [ "/bin/bash", "-c" ]
 # RUN apt update && apt upgrade
 # RUN dpkg --configure -a
 # RUN apt install -y --no-install-recommends libqt5widgets5 libqt5gui5 libqt5svg5 qt5-gtk-platformtheme
-# RUN conda install opencv
+# SHELL ["conda","run", "--no-capture-output", "-n","WhiskiWrap","/bin/bash","-c"]
+# RUN conda install --quiet --yes opencv
+
+# RUN apt install libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0-dev libxcb-randr0-dev libxcb-xtest0-dev libxcb-shape0-dev libxcb-xkb-dev
+# RUN conda update libpng
+# RUN conda install -c conda-forge libxcb
+# RUN conda install -c conda-forge libstdc++
 
 # Set WhiskiWrap as default environment
 SHELL [ "/bin/bash", "--login",  "-c" ]
