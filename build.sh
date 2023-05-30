@@ -7,7 +7,7 @@ docker build -t wanglabneuro/whisk-ww:latest -t wanglabneuro/whisk-ww:ob-0.0.2 -
 ## To create whisk and whisk-wrapper containers, based on new whisk build
 # docker build -t wanglabneuro/whisk-base:latest -t wanglabneuro/whisk-base:0.1.0 -f Dockerfile-whisk context
 docker build -t wanglabneuro/whisk-base:latest -t wanglabneuro/whisk-base:0.2.0 -f Dockerfile-whisk-mex context
-docker build -t wanglabneuro/whisk-ww:latest -t wanglabneuro/whisk-ww:nb-0.2.3 -f Dockerfile-ww-nb context
+docker build -t wanglabneuro/whisk-ww:latest -t wanglabneuro/whisk-ww:nb-0.2.4 -f Dockerfile-ww-nb context
 
 
 
