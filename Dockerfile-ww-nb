@@ -61,7 +61,7 @@ SHELL ["conda","run", "--no-capture-output", "-n","WhiskiWrap","/bin/bash","-c"]
 RUN conda install --quiet --yes ipykernel && \
     python -m ipykernel install --user --name whiski_wrap --display-name "WhiskiWrap" 
 
-# Clone the  WhiskiWrap repo
+# Clone the  WhiskiWrap repository
 WORKDIR /app
 RUN git clone https://github.com/vncntprvst/WhiskiWrap.git
 
