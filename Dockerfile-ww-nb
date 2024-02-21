@@ -1,4 +1,4 @@
-FROM wanglabneuro/whisk-base:0.2.0
+FROM wanglabneuro/whisk-base:0.2.1
 
 LABEL maintainer="Vincent Prevosto <prevosto@mit.edu>"
 

@@ -41,6 +41,9 @@ RUN make
 # add whisk binaries to path
 ENV PATH="$PATH:/app/whisk/build"
 
+# delete Matlab 
+RUN rm -rf /usr/local/MATLAB
+
 WORKDIR /data
 
 ENTRYPOINT []
