@@ -13,7 +13,6 @@ dependencies:
   - statsmodels
   - conda-forge::ffmpeg-python
   - opencv
-  # - pykalman
   - pip:
     - tifffile
     - imagecodecs
