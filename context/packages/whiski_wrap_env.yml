@@ -12,7 +12,7 @@ dependencies:
   - pytables
   - statsmodels
   - conda-forge::ffmpeg-python
-  - opencv
+  - conda-forge::opencv
   - pip:
     - tifffile
     - imagecodecs
