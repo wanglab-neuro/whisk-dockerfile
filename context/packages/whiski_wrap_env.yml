@@ -12,8 +12,10 @@ dependencies:
   - pytables
   - statsmodels
   - conda-forge::ffmpeg-python
-  - conda-forge::opencv
+  # - scikit-learn
+  # - conda-forge::opencv
   - pip:
+    - opencv-python-headless
     - tifffile
     - imagecodecs
     - future
