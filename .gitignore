@@ -1,4 +1,8 @@
 test/
 repo/
+secrets/
 context/archive/whisk-1.1.0d-32bit-Linux.tar.gz
 context/archive/whisk-1.1.0d-64bit-Linux.tar.gz
+whisk-ww-nb_latest.sif
+whisk-ww-nb_latest.sif.hash
+

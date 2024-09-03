@@ -40,9 +40,9 @@ else
 fi
 
 # check if the server_dirs script exists, if so source it
-if [ -f "../../secrets/server_dirs.sh" ]; then
+if [ -f "./secrets/server_dirs.sh" ]; then
     echo "Sourcing server_dirs.sh"
-    source ../../secrets/server_dirs.sh
+    source ./secrets/server_dirs.sh
 fi
 
 # check if hppc_image_repo variable exists

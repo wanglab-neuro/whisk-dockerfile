@@ -12,14 +12,13 @@ RUN apt update && \
     wget \
     libsm6 \
     libgl1-mesa-glx \
+    libncursesw6 \
     libxext6 && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
+    # libtinfo6
 
 # Fix error that occurs when using vscode debugger:
-# qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "" even though it was found.
-# This application failed to start because no Qt platform plugin could be initialized. Reinstalling the application may fix this problem.
-# Available platform plugins are: eglfs, minimal, minimalegl, offscreen, vnc, webgl, xcb.
 RUN apt update && \
     apt upgrade -y && \
     apt install -y --no-install-recommends \
@@ -68,70 +67,61 @@ RUN git clone https://github.com/vncntprvst/WhiskiWrap.git
 ## Add the whisk package 
 WORKDIR /app/whisk
 RUN mv build bin
-RUN cp /app/whisk/bin/libwhisk.so /app/WhiskiWrap/WhiskiWrap/ 
 ENV WHISKPATH="/app/whisk/bin"
+RUN cp $WHISKPATH/libwhisk.so /app/WhiskiWrap/WhiskiWrap/ 
 
 # add whisk binaries to path
 ENV PATH="$CONDA_DIR/bin:$CONDA_DIR/condabin:$CONDA_DIR/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-ENV PATH="$PATH:/app/whisk/bin:/app/whisk/lib"
+ENV PATH="$PATH:$WHISKPATH:/app/whisk/lib"
 
-# Add the WhiskiWrap package 
+# Install the WhiskiWrap package in editable mode (so no need to copy the compiled whisk binaries to the conda environment's site-packages)
 WORKDIR /app/WhiskiWrap/
-RUN pip install .
+RUN pip install -e .
+RUN LIB_DIR=$(python -c "import sys, os; print(os.path.join(os.path.dirname(os.path.dirname(sys.executable)), 'lib'))") && \
+    echo "export LD_LIBRARY_PATH=$LIB_DIR:\$LD_LIBRARY_PATH" >> ~/.bashrc
 
-RUN export PACKDIR=$(python -c "import site; print(''.join(site.getsitepackages()))"); \
-    find /app/WhiskiWrap/ -name *.so -exec cp {} $PACKDIR/WhiskiWrap/ \; &&\
-    find /app/WhiskiWrap/ -name *.so.* -exec cp {} $PACKDIR/WhiskiWrap/ \;
+# Update permissions of executable files in the 'whisk/bin' directory
+RUN find $WHISKPATH -type f -exec chmod +x {} \;
 
-# For debugging purposes - Qt creates a conflict
-# But removing Qt leads to cv2 import error - ImportError: libQt5Widgets.so.5: cannot open shared object file: No such file or directory
-# RUN conda remove pyqt qt-main qt-webengine qtwebkit --force
-# RUN conda remove opencv --force
-# SHELL [ "/bin/bash", "-c" ]
-# RUN apt update && apt upgrade
-# RUN dpkg --configure -a
-# RUN apt install -y --no-install-recommends libqt5widgets5 libqt5gui5 libqt5svg5 qt5-gtk-platformtheme
-# SHELL ["conda","run", "--no-capture-output", "-n","WhiskiWrap","/bin/bash","-c"]
-# RUN conda install --quiet --yes opencv
+# Find the site-packages directory and update permissions for whisk/bin there too
+RUN SITE_PACKAGES_DIR=$(python -c "import site; print(site.getsitepackages()[0])") && \
+    WHISK_SITE_BIN_DIR="$SITE_PACKAGES_DIR/whisk/bin" && \
+    find $WHISK_SITE_BIN_DIR -type f -exec chmod +x {} \;
 
-# RUN apt install libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0-dev libxcb-randr0-dev libxcb-xtest0-dev libxcb-shape0-dev libxcb-xkb-dev
-# RUN conda update libpng
-# RUN conda install -c conda-forge libxcb
-# RUN conda install -c conda-forge libstdc++
+# Set ENV variables to ensure they are available during runtime
+ENV LIB_DIR="$CONDA_DIR/envs/WhiskiWrap/lib"
+ENV LD_LIBRARY_PATH="$LIB_DIR:/usr/local/lib:/usr/local/lib64:$LD_LIBRARY_PATH"
+ENV PATH="$PATH:$LIB_DIR"
+
+# Create a cache directory for matplotlib
+ENV MPLCONFIGDIR=/tmp/matplotlib_cache
+RUN mkdir -p $MPLCONFIGDIR
 
 # Set WhiskiWrap as default environment
 SHELL [ "/bin/bash", "--login",  "-c" ]
 # ENV PATH=/opt/conda/bin:$PATH
-ENV PATH $CONDA_DIR/envs/WhiskiWrap/bin:$PATH
+ENV PATH="$CONDA_DIR/envs/WhiskiWrap/bin:$PATH"
 RUN echo ". $CONDA_DIR/etc/profile.d/conda.sh" >> /root/.profile && \
     conda init bash && conda activate WhiskiWrap && \
     echo "conda activate WhiskiWrap" >> ~/.bashrc
 
-# Add entrypoint script (not working)
+# Add entrypoint script (not used)
 WORKDIR /app/
 COPY pipeline_call.py .
 
-# Error when calling script, but not when executing code through python (python -c "import WhiskiWrap; WhiskiWrap.pipeline_trace('test.mp4', 'output.hdf5', n_trace_processes=4)") or ipython  
-# Adding whisk module to Python path doesn't fix it
-# RUN	echo "/app/whisk/share" >> /opt/conda/envs/WhiskiWrap/lib/python3.7/site-packages/WhiskiWrap.pth
-# export PYTHONPATH="${PYTHONPATH}:/opt/conda/envs/WhiskiWrap/lib/python3.7/site-packages/whisk"
-
 WORKDIR /data
 
-# Alternative entrypoints
-# ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "WhiskiWrap", "python", "-c", "import WhiskiWrap; WhiskiWrap.pipeline_trace"]
-# ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "WhiskiWrap", "/bin/bash", "-c"]
-# ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "WhiskiWrap", "python", "/app/pipeline_call.py"]
-
-# Example calls: 
-# docker run --rm -v $(pwd):/data -t whisk-wrap \
+# # Example calls: 
+# docker run --rm -v $(pwd):/data -t wanglabneuro/whisk-ww \
 # python -c "import WhiskiWrap; WhiskiWrap.pipeline_trace('test.mp4', 'output.hdf5', n_trace_processes=12)"
 
 # mkdir whiski_wrap_session
-# docker run --rm -v $(pwd):/data -t whisk-wrap \
+# docker run --rm -v $(pwd):/data -t wanglabneuro/whisk-ww \
 # python -c "import WhiskiWrap; from WhiskiWrap import FFmpegReader; \
 # WhiskiWrap.interleaved_reading_and_tracing(FFmpegReader('/data/test.mp4'),'whiski_wrap_session', h5_filename='output.hdf5',n_trace_processes=20)"
 
+# # Check LD_LIBRARY_PATH
+# docker run --rm -it -v $(pwd):/data wanglabneuro/whisk-ww bash -c "echo \$LD_LIBRARY_PATH"
 
 
 
