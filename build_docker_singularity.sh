@@ -39,10 +39,15 @@ else
             
 fi
 
-# check if the server_dirs script exists, if so source it
-if [ -f "./secrets/server_dirs.sh" ]; then
-    echo "Sourcing server_dirs.sh"
-    source ./secrets/server_dirs.sh
+# If the .env script exists, get the HPCC_IMAGE_REPO variable
+if [ -f ".env" ]; then
+    echo "Get server information from .env file."
+    while IFS='=' read -r key value; do
+        if [[ $key != \#* ]]; then
+            export "$key=$value"
+        fi
+    done < ".env"
+    export SSH_HPCC_IMAGE_REPO="${SSH_NODE}:${HPCC_IMAGE_REPO}"
 fi
 
 # check if hppc_image_repo variable exists

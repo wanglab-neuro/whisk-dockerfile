@@ -1,8 +1,14 @@
+# Ignore test files
 test/
 repo/
-secrets/
+
+# Ignore context build files
 context/archive/whisk-1.1.0d-32bit-Linux.tar.gz
 context/archive/whisk-1.1.0d-64bit-Linux.tar.gz
+
+# Ignore singularity files
 whisk-ww-nb_latest.sif
 whisk-ww-nb_latest.sif.hash
 
+# Ignore environment files
+.env
