@@ -12,6 +12,7 @@ dependencies:
   - pytables
   - statsmodels
   - conda-forge::ffmpeg-python
+  - h5py
   # - scikit-learn
   # - conda-forge::opencv
   - pip:

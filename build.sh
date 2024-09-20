@@ -15,7 +15,6 @@ docker build -t wanglabneuro/whisk-ww:latest -t wanglabneuro/whisk-ww:nb-0.2.7 -
 ## Potential future build
 # docker build -t wanglabneuro/whisk-ww:nb-0.3.0 -f Dockerfile-ww .
 
-
 ## Versions:
 # whisk-ww:nb-0.2.7 - WhiskiWrap 1.2.0, whisk-janelia 1.1.10 
 # whisk-ww:nb-0.2.6 - WhiskiWrap 1.1.11, whisk-janelia 1.1.10 
