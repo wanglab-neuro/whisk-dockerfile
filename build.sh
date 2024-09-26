@@ -9,13 +9,14 @@
 
 # docker build -t wanglabneuro/whisk-base:latest -t wanglabneuro/whisk-base:0.1.0 -f Dockerfile-whisk context
 # docker build -t wanglabneuro/whisk-base:latest -t wanglabneuro/whisk-base:0.2.2 -f Dockerfile-whisk-mex context
-docker build -t wanglabneuro/whisk-ww:latest -t wanglabneuro/whisk-ww:nb-0.2.7 -f Dockerfile-ww-nb context 
-# --no-cache
+docker build -t wanglabneuro/whisk-ww:latest -t wanglabneuro/whisk-ww:nb-0.2.8 -f Dockerfile-ww-nb context
+#  --no-cache
 
 ## Potential future build
 # docker build -t wanglabneuro/whisk-ww:nb-0.3.0 -f Dockerfile-ww .
 
 ## Versions:
+# whisk-ww:nb-0.2.8 - WhiskiWrap 1.2.1, whisk-janelia 1.1.10
 # whisk-ww:nb-0.2.7 - WhiskiWrap 1.2.0, whisk-janelia 1.1.10 
 # whisk-ww:nb-0.2.6 - WhiskiWrap 1.1.11, whisk-janelia 1.1.10 
  

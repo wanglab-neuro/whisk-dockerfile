@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Build Docker image
-docker build -t wanglabneuro/whisk-ww:latest -t wanglabneuro/whisk-ww:nb-0.2.7 -f Dockerfile-ww-nb context
+docker build -t wanglabneuro/whisk-ww:latest -t wanglabneuro/whisk-ww:nb-0.2.8 -f Dockerfile-ww-nb context
 
 # Push to Docker registry
 docker push --all-tags wanglabneuro/whisk-ww
