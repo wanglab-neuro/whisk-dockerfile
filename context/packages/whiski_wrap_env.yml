@@ -13,6 +13,7 @@ dependencies:
   - statsmodels
   - conda-forge::ffmpeg-python
   - h5py
+  - conda-forge::seaborn
   # - scikit-learn
   # - conda-forge::opencv
   - pip:
@@ -20,3 +21,4 @@ dependencies:
     - tifffile
     - imagecodecs
     - future
+    - plotly==5.24.1 
