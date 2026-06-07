@@ -1,6 +1,8 @@
 # Using the whisker tracking container
 
-The purpose of this repository is to provide containers to run [whisk - Janelia's whisker tracking software](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1002591) and [WhiskiWrap](https://github.com/cxrodgers/WhiskiWrap), Chris Rodgers's wrapping functions for whisk.  
+The purpose of this repository is to provide containers to run [whisk - Janelia's whisker tracking software](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1002591) and [WhiskiWrap](https://github.com/vncntprvst/WhiskiWrap), a wrapper around whisk (originally by Chris Rodgers).
+
+Current code bases: [vncntprvst/whisk](https://github.com/vncntprvst/whisk) (on PyPI as `whisk-janelia`, with bundled Linux binaries) and [vncntprvst/WhiskiWrap](https://github.com/vncntprvst/WhiskiWrap) (PyPI `WhiskiWrap`). Both are now pip-installable, so new images can `pip install whisk-janelia[ffmpeg] WhiskiWrap` instead of building whisk from source (see `Dockerfile-ww`).  
 
 The images are publicly available on DockerHub, so you don't have to build the containers yourself (unless you want to make changes to it).  
 Example command: `docker run --rm -t wanglabneuro/whisk-base trace movie.mp4 movie.whiskers`.  
@@ -15,7 +17,7 @@ A new build is available in `whisk-base:0.0.4` (also `whisk-base:latest`). The c
 
 **whisk-ww**  
 Containers with `whisk` and `WhiskiWrap` are found on [wanglabneuro/whisk-ww](https://hub.docker.com/r/wanglabneuro/whisk-ww/tags).
-The code bases are Ariel Iporre's Python3-updated repositories for [whisk](https://github.com/aiporre/whisk) and [WhiskiWrap](https://github.com/aiporre/WhiskiWrap).  
+The code bases are now [vncntprvst/whisk](https://github.com/vncntprvst/whisk) and [vncntprvst/WhiskiWrap](https://github.com/vncntprvst/WhiskiWrap) (both pip-installable).  
 Image tags with `ob-<version number>` (e.g., `wanglabneuro/whisk-ww:ob-0.0.2`), use `whisk-base:legacy` as base, i.e., they contain the original Linux binaries.  
 Image tags with `nb-<version number>` (e.g., `wanglabneuro/whisk-ww:nb-0.0.1`) use `whisk-base:latest` as base, i.e., they contain the newly built Linux binaries.  
 In pratice, this doesn't have much impact. You can pull the latest with `docker pull wanglabneuro/whisk-ww`.  

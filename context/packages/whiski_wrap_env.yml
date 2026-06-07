@@ -14,6 +14,8 @@ dependencies:
   - conda-forge::ffmpeg-python
   - h5py
   - conda-forge::seaborn
+  - pyarrow
+  - joblib
   # - scikit-learn
   # - conda-forge::opencv
   - pip:
@@ -21,4 +23,11 @@ dependencies:
     - tifffile
     - imagecodecs
     - future
-    - plotly==5.24.1 
+    - plotly==5.24.1
+    # whisk (bundles the Linux trace/measure/classify binaries) + the wrapper.
+    # whisk-janelia[ffmpeg] auto-downloads matching FFmpeg shared libs if the
+    # container's ffmpeg is not discoverable.
+    - whisk-janelia[ffmpeg]
+    - WhiskiWrap
+    # torch is only needed for the optional U-Net whisker-ID path:
+    # - torch 
