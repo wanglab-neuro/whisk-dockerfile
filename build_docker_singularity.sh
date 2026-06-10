@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# Build Docker image
-docker build -t wanglabneuro/whisk-ww:latest -t wanglabneuro/whisk-ww:nb-0.2.9 -f Dockerfile-ww-nb context
+# Build Docker image (PyPI-based: pip installs whisk-janelia[ffmpeg] + WhiskiWrap,
+# no source build / conda env / whisk-base needed). See Dockerfile-ww.
+docker build -t wanglabneuro/whisk-ww:latest -t wanglabneuro/whisk-ww:nb-0.3.0 -f Dockerfile-ww .
 
 # Push to Docker registry
 docker push --all-tags wanglabneuro/whisk-ww
