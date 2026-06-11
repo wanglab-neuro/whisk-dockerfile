@@ -2,7 +2,7 @@
 
 # Build Docker image (PyPI-based: pip installs whisk-janelia[ffmpeg] + WhiskiWrap,
 # no source build / conda env / whisk-base needed). See Dockerfile-ww.
-docker build -t wanglabneuro/whisk-ww:latest -t wanglabneuro/whisk-ww:nb-0.3.0 -f Dockerfile-ww .
+docker build -t wanglabneuro/whisk-ww:latest -t wanglabneuro/whisk-ww:v1.0 -f Dockerfile-ww .
 
 # Push to Docker registry
 docker push --all-tags wanglabneuro/whisk-ww
@@ -43,18 +43,20 @@ fi
 # If the .env script exists, get the HPCC_IMAGE_REPO variable
 if [ -f ".env" ]; then
     echo "Get server information from .env file."
-    while IFS='=' read -r key value; do
-        if [[ $key != \#* ]]; then
-            export "$key=$value"
-        fi
-    done < ".env"
+    set -a
+    source .env
+    set +a
     export SSH_HPCC_IMAGE_REPO="${SSH_NODE}:${HPCC_IMAGE_REPO}"
 fi
 
-# check if hppc_image_repo variable exists
+# check if hppc_image_repo variable exists and .sif file was built
 if [ -n "${SSH_HPCC_IMAGE_REPO+x}" ]; then
-    echo "Copying Singularity image to HPCC."
-    rsync -aP whisk-ww-nb_latest.sif "$SSH_HPCC_IMAGE_REPO/" # -z compression flag tends to screw up the transfer when using the script. May not be necessary anyway.
+    if [ -f "whisk-ww-nb_latest.sif" ]; then
+        echo "Copying Singularity image to HPCC."
+        rsync -aP whisk-ww-nb_latest.sif "$SSH_HPCC_IMAGE_REPO/" # -z compression flag tends to screw up the transfer when using the script. May not be necessary anyway.
+    else
+        echo "Singularity image not found. Skipping copy to HPCC."
+    fi
 else
     echo "HPPC_IMAGE_REPO variable not set. Not copying to HPPC."
 fi
