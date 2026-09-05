@@ -2,7 +2,7 @@
 
 # Build Docker image (PyPI-based: pip installs whisk-janelia[ffmpeg] + WhiskiWrap,
 # no source build / conda env / whisk-base needed). See Dockerfile-ww.
-docker build -t wanglabneuro/whisk-ww:latest -t wanglabneuro/whisk-ww:v1.0 -f Dockerfile-ww .
+docker build -t wanglabneuro/whisk-ww:latest -t wanglabneuro/whisk-ww:v1.1 -f Dockerfile-ww .
 
 # Push to Docker registry
 docker push --all-tags wanglabneuro/whisk-ww
