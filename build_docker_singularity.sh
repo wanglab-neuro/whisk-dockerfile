@@ -32,11 +32,36 @@ else
     if [ $build_singularity -eq 1 ]; then
         echo "Building Singularity image."
         # docker login
-        apptainer build -F whisk-ww-latest.sif docker://wanglabneuro/whisk-ww:latest 
+        # CONVERT THE IMAGE THAT WAS JUST BUILT, NOT THE ONE IN THE REGISTRY.
+        #
+        # `docker://` fetches from Docker Hub, so this step silently depended on
+        # the `docker push` above having succeeded. On 2026-09-05 it did not (the
+        # same credentials that failed the rsync below), and apptainer converted
+        # the previous registry image instead. The result was a .sif holding
+        # WhiskiWrap 1.2.8 with none of the linking fixes, built minutes after a
+        # local image that had them, reported as a successful build. The
+        # Dockerfile's build-time assertion could not catch it: that assertion
+        # ran, and passed, in the local image this step then ignored.
+        #
+        # `docker-daemon://` takes the local image directly, so the .sif is the
+        # thing that was just verified.
+        apptainer build -F whisk-ww-latest.sif docker-daemon://wanglabneuro/whisk-ww:latest
         # docker logout
+
+        # VERIFY THE .sif ITSELF, NOT THE IMAGE IT WAS SUPPOSED TO COME FROM.
+        # The Dockerfile asserts the linking fixes at build time, which says
+        # nothing about what ended up in the .sif if the conversion took its
+        # input from somewhere else. This is the same assertion, run on the
+        # artefact that actually gets shipped -- and it is a hard stop, because
+        # the failure it guards against is silent in every downstream result.
+        if ! apptainer exec whisk-ww-latest.sif python -c "import inspect,sys; from importlib.metadata import version; import wwutils.classifiers.hmm_link as h, wwutils.classifiers.detection_features as d, WhiskiWrap.base as b; C=[(h,'_labels_look_like_identities'),(h,'_sig_cost'),(h,'track_weight'),(h,'c_groups'),(d,'_SHAPE_SCALAR_COLS'),(b,'measurement_by_key')]; m=[k for o,k in C if k not in inspect.getsource(o)]; sys.exit('.sif holds WhiskiWrap '+version('WhiskiWrap')+' and lacks: '+', '.join(m)) if m else print('.sif verified: WhiskiWrap '+version('WhiskiWrap')+', linking fixes present')"; then
+            echo "REFUSING to publish this .sif -- it does not contain the linking fixes." >&2
+            exit 1
+        fi
+
         # store a hash of the Docker image in a file
         docker inspect wanglabneuro/whisk-ww:latest --format='{{.Id}}' > whisk-ww-latest.sif.hash
-    fi    
+    fi
             
 fi
 
