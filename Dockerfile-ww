@@ -3,16 +3,24 @@
 # whisk-janelia bundles the Linux trace/measure/classify binaries and, on first
 # `import whisk`, auto-downloads + preloads its matching FFmpeg shared libraries
 # (and fixes their exec bits). So there is no need to build whisk from source,
-# pull a whisk-base image, or create a conda env. WhiskiWrap (>=1.2.6) ships the
-# learned coverage model and pulls scikit-learn/joblib, so `--learned` works
-# out of the box.
+# pull a whisk-base image, or create a conda env. WhiskiWrap ships the learned
+# coverage model and pulls scikit-learn/joblib, so `--learned` works out of the
+# box.
+#
+# WhiskiWrap >= 1.2.9 IS REQUIRED, not merely preferred. 1.2.6 through 1.2.8 take
+# the whisker count from classify's per-segment labels, which the tracing pipeline
+# produces with `-n -1`; on the ground-truth clips that yields 28-37 whiskers per
+# side instead of 3, and HMM linking then emits NO output at all while
+# whisker_tracking.py silently falls back to the geometry linker. On real sessions
+# it lands at 12-13 and produces hundreds of spurious identities instead. Neither
+# failure is visible in the output.
 #
 # The system ffmpeg installed below is only for WhiskiWrap's video reading
 # (FFmpegReader shells out to the ffmpeg/ffprobe CLI). It is independent of the
 # FFmpeg shared libs whisk loads for its own binaries (soname-versioned, so the
 # two never collide even if the majors differ).
 #
-# Build:  docker build -t wanglabneuro/whisk-ww:latest -t wanglabneuro/whisk-ww:nb-0.3.0 -f Dockerfile-ww .
+# Build:  docker build -t wanglabneuro/whisk-ww:latest -t wanglabneuro/whisk-ww:v1.2 -f Dockerfile-ww .
 # Smoke:  docker run --rm -t wanglabneuro/whisk-ww:latest \
 #             python -c "import WhiskiWrap, whisk; print('ok')"
 FROM python:3.10-slim-bookworm
@@ -35,11 +43,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # learned add-on) come in automatically; the explicit pin documents the versions.
 RUN pip install --no-cache-dir \
         "whisk-janelia[ffmpeg]==1.2.5" \
-        "WhiskiWrap==1.2.8"
+        "WhiskiWrap==1.2.9"
 
 # Warm the FFmpeg shared-lib download into the image (so the first container run
 # is offline-friendly) and verify the install loads end to end at build time.
 RUN python -c "import whisk; import WhiskiWrap; print('whisk + WhiskiWrap import OK')"
+
+# FAIL THE BUILD if the linking fixes are not actually in the installed package.
+#
+# An import check would have passed happily on 1.2.6-1.2.8, whose defect is silent:
+# linking either produces nothing (and the caller falls back without saying so) or
+# emits hundreds of spurious identities. So the presence of the fixes is asserted
+# on the SOURCE that will actually be imported, which is also proof against a
+# resolver picking up a cached or yanked build.
+RUN python -c "import inspect,sys; import wwutils.classifiers.hmm_link as h, wwutils.classifiers.detection_features as d, WhiskiWrap.base as b; C=[(h,'_labels_look_like_identities'),(h,'_sig_cost'),(h,'track_weight'),(h,'c_groups'),(d,'_SHAPE_SCALAR_COLS'),(b,'measurement_by_key')]; m=[k for o,k in C if k not in inspect.getsource(o)]; sys.exit('installed WhiskiWrap lacks required linking fixes (need >=1.2.9): '+', '.join(m)) if m else print('WhiskiWrap linking fixes verified')"
 
 WORKDIR /data
 
