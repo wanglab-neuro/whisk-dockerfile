@@ -16,8 +16,8 @@ then
     exit
 else
     # If a hash file exists, check the hash matches the current Docker image. If not, build a new Singularity image.
-    if [ -f "whisk-ww-nb_latest.sif.hash" ]; then
-        if [ "$(docker inspect wanglabneuro/whisk-ww:latest --format='{{.Id}}')" == "$(cat whisk-ww-nb_latest.sif.hash)" ]; then
+    if [ -f "whisk-ww-latest.sif.hash" ]; then
+        if [ "$(docker inspect wanglabneuro/whisk-ww:latest --format='{{.Id}}')" == "$(cat whisk-ww-latest.sif.hash)" ]; then
             echo "Docker image has not changed. Not building Singularity image."
             build_singularity=0
         else
@@ -32,10 +32,10 @@ else
     if [ $build_singularity -eq 1 ]; then
         echo "Building Singularity image."
         # docker login
-        apptainer build -F whisk-ww-nb_latest.sif docker://wanglabneuro/whisk-ww:latest 
+        apptainer build -F whisk-ww-latest.sif docker://wanglabneuro/whisk-ww:latest 
         # docker logout
         # store a hash of the Docker image in a file
-        docker inspect wanglabneuro/whisk-ww:latest --format='{{.Id}}' > whisk-ww-nb_latest.sif.hash
+        docker inspect wanglabneuro/whisk-ww:latest --format='{{.Id}}' > whisk-ww-latest.sif.hash
     fi    
             
 fi
@@ -51,9 +51,9 @@ fi
 
 # check if hppc_image_repo variable exists and .sif file was built
 if [ -n "${SSH_HPCC_IMAGE_REPO+x}" ]; then
-    if [ -f "whisk-ww-nb_latest.sif" ]; then
+    if [ -f "whisk-ww-latest.sif" ]; then
         echo "Copying Singularity image to HPCC."
-        rsync -aP whisk-ww-nb_latest.sif "$SSH_HPCC_IMAGE_REPO/" # -z compression flag tends to screw up the transfer when using the script. May not be necessary anyway.
+        rsync -aP whisk-ww-latest.sif "$SSH_HPCC_IMAGE_REPO/" # -z compression flag tends to screw up the transfer when using the script. May not be necessary anyway.
     else
         echo "Singularity image not found. Skipping copy to HPCC."
     fi
