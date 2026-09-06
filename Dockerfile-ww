@@ -35,7 +35,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # learned add-on) come in automatically; the explicit pin documents the versions.
 RUN pip install --no-cache-dir \
         "whisk-janelia[ffmpeg]==1.2.5" \
-        "WhiskiWrap==1.2.6"
+        "WhiskiWrap==1.2.9"
 
 # Warm the FFmpeg shared-lib download into the image (so the first container run
 # is offline-friendly) and verify the install loads end to end at build time.

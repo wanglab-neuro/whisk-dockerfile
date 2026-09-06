@@ -10,7 +10,7 @@
 # docker build -t wanglabneuro/whisk-base:latest -t wanglabneuro/whisk-base:0.1.0 -f Dockerfile-whisk context
 # docker build -t wanglabneuro/whisk-base:latest -t wanglabneuro/whisk-base:0.2.2 -f Dockerfile-whisk-mex context
 # docker build -t wanglabneuro/whisk-ww:latest -t wanglabneuro/whisk-ww:nb-0.2.9 -f Dockerfile-ww-nb context
-docker build -t wanglabneuro/whisk-ww:latest -t wanglabneuro/whisk-ww:v1.1 -f Dockerfile-ww .
+docker build -t wanglabneuro/whisk-ww:latest -t wanglabneuro/whisk-ww:v1.2 -f Dockerfile-ww .
 
 #  --no-cache
 
@@ -18,6 +18,12 @@ docker build -t wanglabneuro/whisk-ww:latest -t wanglabneuro/whisk-ww:v1.1 -f Do
 # docker build -t wanglabneuro/whisk-ww:nb-0.3.0 -f Dockerfile-ww .
 
 ## Versions:
+# whisk-ww:v1.2 - WhiskiWrap 1.2.9, whisk-janelia 1.2.5. Fixes cross-chunk
+#   stitching (identity swaps and 60-678 spurious global ids) and the whisker
+#   count, which 1.2.6-1.2.8 took from classify's per-segment labels: on the
+#   ground-truth clips that gave 28-37 whiskers per side instead of 3, and HMM
+#   linking then produced NO output at all, silently falling back to the
+#   geometry linker. Identity accuracy against GT: none -> 0.92 / 0.97.
 # whisk-ww:v1.1 - WhiskiWrap 1.2.8, whisk-janelia 1.2.5. PyPI-based (Dockerfile-ww): pip install only, no source build / conda / whisk-base. Includes the learned coverage model (--learned); whisk auto-downloads+preloads its FFmpeg libs on import.
 # whisk-ww:v1.0 - WhiskiWrap 1.2.6, whisk-janelia 1.2.5. PyPI-based (Dockerfile-ww): pip install only, no source build / conda / whisk-base. Includes the learned coverage model (--learned); whisk auto-downloads+preloads its FFmpeg libs on import.
 # whisk-ww:nb-0.2.9 - WhiskiWrap 1.2.1, whisk-janelia 1.1.10. Adds seaborn and plotly for convenience.
