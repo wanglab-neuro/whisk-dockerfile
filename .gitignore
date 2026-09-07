@@ -5,10 +5,14 @@ repo/
 # Ignore context build files
 context/archive/whisk-1.1.0d-32bit-Linux.tar.gz
 context/archive/whisk-1.1.0d-64bit-Linux.tar.gz
+d
 
-# Ignore singularity files
-whisk-ww-nb_latest.sif
-whisk-ww-nb_latest.sif.hash
+# Ignore singularity files and build logs
+*.sif
+*.sif.hash
+build*.log
 
 # Ignore environment files
 .env
+
+

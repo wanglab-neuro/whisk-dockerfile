@@ -14,12 +14,9 @@ docker build -t wanglabneuro/whisk-ww:latest -t wanglabneuro/whisk-ww:v1.2 -f Do
 
 #  --no-cache
 
-## Potential future build
-# docker build -t wanglabneuro/whisk-ww:nb-0.3.0 -f Dockerfile-ww .
-
 ## Versions:
 # whisk-ww:v1.2 - WhiskiWrap 1.2.9, whisk-janelia 1.2.5. Fixes cross-chunk
-#   stitching (identity swaps and 60-678 spurious global ids) and the whisker
+#   stitching (identity swaps and spurious global ids) and the whisker
 #   count, which 1.2.6-1.2.8 took from classify's per-segment labels: on the
 #   ground-truth clips that gave 28-37 whiskers per side instead of 3, and HMM
 #   linking then produced NO output at all, silently falling back to the

@@ -35,10 +35,10 @@ else
         # CONVERT THE IMAGE THAT WAS JUST BUILT, NOT THE ONE IN THE REGISTRY.
         #
         # `docker://` fetches from Docker Hub, so this step silently depended on
-        # the `docker push` above having succeeded. On 2026-09-05 it did not (the
-        # same credentials that failed the rsync below), and apptainer converted
-        # the previous registry image instead. The result was a .sif holding
-        # WhiskiWrap 1.2.8 with none of the linking fixes, built minutes after a
+        # the `docker push` above having succeeded. If it hasn't (that happened)
+        # apptainer converted the previous registry image instead. 
+        # The result was a .sif holding an deprecated WhiskiWrap version with 
+        # none of the chanegs and fixes, built minutes after a
         # local image that had them, reported as a successful build. The
         # Dockerfile's build-time assertion could not catch it: that assertion
         # ran, and passed, in the local image this step then ignored.
